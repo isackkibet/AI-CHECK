@@ -105,8 +105,14 @@ export function CodebaseMapPage({ onSelectFile }: Props) {
   };
 
   return (
-    <div className="page" style={{ height: "100%" }}>
-      {/* Controls bar */}
+    <div className="page">
+      <div className="page-heading">
+        <div>
+          <span className="eyebrow">PROJECT STRUCTURE</span>
+          <h1>Codebase map</h1>
+          <p className="page-description">See how files connect and spot recently changed areas.</p>
+        </div>
+      </div>
       <div className="toolbar" style={{ flexWrap: "wrap", gap: 8 }}>
         {projects.length > 0 && (
           <select
@@ -127,7 +133,7 @@ export function CodebaseMapPage({ onSelectFile }: Props) {
           </select>
         )}
         <input
-          className="search-input"
+          className="search-input project-path-input"
           type="text"
           placeholder="Or enter project path…"
           value={customPath}
@@ -157,7 +163,7 @@ export function CodebaseMapPage({ onSelectFile }: Props) {
           </p>
         </div>
       ) : (
-        <div style={{ flex: 1, height: "calc(100vh - 200px)", background: "var(--bg)" }}>
+        <div className="map-canvas">
           <ReactFlow
             nodes={nodes}
             edges={edges}

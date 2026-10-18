@@ -26,99 +26,88 @@ export function FailuresPage() {
     );
   };
 
-  if (loading) return <div className="page-empty">Loading failures…</div>;
+  if (loading) return <div className="page"><div className="page-empty">Loading failures…</div></div>;
   if (groups.length === 0)
     return (
-      <div className="page-empty">
-        <span style={{ fontSize: 32 }}>✅</span>
-        <p>No failures recorded yet.</p>
-        <p className="dim">Tool errors will appear here, grouped by type.</p>
+      <div className="page">
+        <div className="page-heading">
+          <div><span className="eyebrow">QUALITY</span><h1>Failure inbox</h1><p className="page-description">Repeated tool errors, grouped with their evidence.</p></div>
+        </div>
+        <div className="page-empty">
+          <span className="empty-search-icon" aria-hidden="true">✓</span>
+          <strong>No failures recorded</strong>
+          <span>Tool errors will appear here, grouped by type.</span>
+        </div>
       </div>
     );
 
   return (
-    <div className="page failures-layout">
-      {/* Left: ranked list */}
-      <aside className="failures-list">
-        <div className="section-head">
-          <h2>Failures</h2>
-          <span className="dim">{groups.length} groups</span>
-        </div>
-        {groups.map((g) => (
-          <button
-            key={g.id}
-            className={`failure-row ${selected === g.id ? "active" : ""} ${g.resolved ? "resolved" : ""}`}
-            onClick={() => setSelected(g.id === selected ? null : g.id)}
-          >
-            <div className="failure-row-top">
-              <span className="failure-count">{g.occurrenceCount}×</span>
-              <span className="failure-type">{g.errorType ?? "error"}</span>
-              {g.resolved === 1 && <span className="badge-resolved">Resolved</span>}
-            </div>
-            <div className="failure-msg">{g.normalizedMessage}</div>
-            <div className="failure-dates dim">
-              First: {new Date(g.firstSeen).toLocaleString()} · Last: {new Date(g.lastSeen).toLocaleString()}
-            </div>
-          </button>
-        ))}
-      </aside>
+    <div className="page">
+      <div className="page-heading">
+        <div><span className="eyebrow">QUALITY</span><h1>Failure inbox</h1><p className="page-description">Repeated tool errors, grouped with their evidence.</p></div>
+        <span className="result-count">{groups.length} groups</span>
+      </div>
+      <div className="failures-layout">
+        <aside className="failures-list">
+          <div className="section-head">
+            <h2>Groups</h2>
+            <span className="dim">{groups.length}</span>
+          </div>
+          {groups.map((g) => (
+            <button
+              key={g.id}
+              className={`failure-row ${selected === g.id ? "active" : ""} ${g.resolved ? "resolved" : ""}`}
+              onClick={() => setSelected(g.id === selected ? null : g.id)}
+            >
+              <div className="failure-row-top">
+                <span className="failure-count">{g.occurrenceCount}×</span>
+                <span className="failure-type">{g.errorType ?? "error"}</span>
+                {g.resolved === 1 && <span className="badge-resolved">Resolved</span>}
+              </div>
+              <div className="failure-msg">{g.normalizedMessage}</div>
+              <div className="failure-dates">First: {new Date(g.firstSeen).toLocaleString()} · Last: {new Date(g.lastSeen).toLocaleString()}</div>
+            </button>
+          ))}
+        </aside>
 
-      {/* Right: detail */}
-      <section className="failures-detail">
-        {!detail ? (
-          <div className="page-empty">Select a failure to see evidence</div>
-        ) : (
-          <>
-            <div className="section-head">
-              <h2>{detail.group.errorType ?? "error"}</h2>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  className="btn"
-                  onClick={() =>
-                    handleResolve(detail.group.id, detail.group.resolved !== 1)
-                  }
-                >
-                  {detail.group.resolved === 1 ? "Mark Unresolved" : "Mark Resolved"}
+        <section className="failures-detail">
+          {!detail ? (
+            <div className="page-empty detail-empty">
+              <span className="empty-search-icon" aria-hidden="true">↖</span>
+              <strong>Select a failure group</strong>
+              <span>Choose a group to inspect its recent evidence.</span>
+            </div>
+          ) : (
+            <>
+              <div className="section-head">
+                <div><span className="eyebrow">FAILURE DETAILS</span><h2>{detail.group.errorType ?? "Error"}</h2></div>
+                <button className="btn" onClick={() => handleResolve(detail.group.id, detail.group.resolved !== 1)}>
+                  {detail.group.resolved === 1 ? "Mark unresolved" : "Mark resolved"}
                 </button>
               </div>
-            </div>
-            <div className="card" style={{ marginBottom: 16 }}>
-              <div className="dim" style={{ marginBottom: 4 }}>Normalized signature</div>
-              <code>{detail.group.normalizedMessage}</code>
-              <div className="dim" style={{ marginTop: 8 }}>
-                {detail.group.occurrenceCount} occurrences · first{" "}
-                {new Date(detail.group.firstSeen).toLocaleString()} · last{" "}
-                {new Date(detail.group.lastSeen).toLocaleString()}
+              <div className="card" style={{ marginBottom: 20 }}>
+                <div className="dim" style={{ marginBottom: 6 }}>Normalized signature</div>
+                <code>{detail.group.normalizedMessage}</code>
+                <div className="dim" style={{ marginTop: 10 }}>
+                  {detail.group.occurrenceCount} occurrences · First {new Date(detail.group.firstSeen).toLocaleString()} · Last {new Date(detail.group.lastSeen).toLocaleString()}
+                </div>
               </div>
-            </div>
-
-            <h3 style={{ marginBottom: 8 }}>Recent evidence</h3>
-            <ol className="occurrence-list" aria-label="Failure occurrences">
-              {detail.occurrences.map((o, i) => (
-                <li key={i} className="occurrence-item">
-                  <div className="occurrence-time dim">
-                    {new Date(o.timestamp).toLocaleString()}
-                  </div>
-                  {o.command && (
-                    <code className="occurrence-cmd">$ {o.command}</code>
-                  )}
-                  {o.exitCode != null && (
-                    <span className={`badge ${o.exitCode === 0 ? "badge-ok" : "badge-err"}`}>
-                      exit {o.exitCode}
-                    </span>
-                  )}
-                  {o.message && (
-                    <div className="occurrence-msg">{o.message}</div>
-                  )}
-                  {o.filePath && (
-                    <code className="timeline-file">{o.filePath}</code>
-                  )}
-                </li>
-              ))}
-            </ol>
-          </>
-        )}
-      </section>
+              <div className="section-head"><h3>Recent evidence</h3><span className="dim">{detail.occurrences.length} entries</span></div>
+              <ol className="occurrence-list" aria-label="Failure occurrences">
+                {detail.occurrences.map((o, i) => (
+                  <li key={i} className="occurrence-item">
+                    <div className="occurrence-time">{new Date(o.timestamp).toLocaleString()}</div>
+                    {o.command && <code className="occurrence-cmd">$ {o.command}</code>}
+                    {o.exitCode != null && <span className={`badge ${o.exitCode === 0 ? "badge-ok" : "badge-err"}`}>exit {o.exitCode}</span>}
+                    {o.message && <div className="occurrence-msg">{o.message}</div>}
+                    {o.filePath && <code className="timeline-file">{o.filePath}</code>}
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
+        </section>
+      </div>
     </div>
   );
 }

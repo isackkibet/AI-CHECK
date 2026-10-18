@@ -72,8 +72,15 @@ export function ChangeExplorerPage({ events, initialFile }: Props) {
     .reverse();
 
   return (
-    <div className="page explorer-layout">
-      {/* Left: recent edits picker */}
+    <div className="page">
+      <div className="page-heading">
+        <div>
+          <span className="eyebrow">INVESTIGATE</span>
+          <h1>Change explorer</h1>
+          <p className="page-description">Trace file activity and understand why a change was made.</p>
+        </div>
+      </div>
+      <div className="explorer-layout">
       <aside className="explorer-files">
         <div className="section-head">
           <h2>Recent edits</h2>
@@ -99,7 +106,7 @@ export function ChangeExplorerPage({ events, initialFile }: Props) {
         {/* File path input */}
         <div className="toolbar" style={{ marginBottom: 16 }}>
           <input
-            className="search-input"
+            className="search-input file-path-input"
             type="text"
             placeholder="File path (e.g. src/auth/login.ts)"
             value={filePath}
@@ -202,6 +209,7 @@ export function ChangeExplorerPage({ events, initialFile }: Props) {
           </div>
         )}
       </section>
+      </div>
     </div>
   );
 }
