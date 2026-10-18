@@ -2,6 +2,15 @@
 
 Brainstorm is a local-first dashboard for understanding what Claude Code does in a project. It reads Claude Code session logs, stores normalized activity in SQLite, and streams updates to a React dashboard.
 
+## Languages and tools
+
+- **TypeScript** is the main application language for the React frontend, Express backend, and shared event types.
+- **CSS** styles the dashboard and its responsive layouts.
+- **HTML** provides the Vite app entry point.
+- **Python** is used by a development-only log inspection utility; it is not part of the application runtime.
+
+The frontend uses React, Vite, Socket.IO Client, and React Flow. The backend uses Node.js, Express, Socket.IO, SQLite (`better-sqlite3`), and Chokidar to watch session logs.
+
 ## Features
 
 - **Live timeline:** Browse, search, and filter agent activity, including file reads and edits, commands, errors, tests, and session events.
@@ -10,6 +19,20 @@ Brainstorm is a local-first dashboard for understanding what Claude Code does in
 - **Change explorer:** Review activity for a file and ask why it changed. Claude powered answers are optional; recorded evidence remains available without an API key.
 - **Local storage:** Keep sessions, events, failure records, dependency edges, and summaries in a local SQLite database.
 - **Demo mode:** Generate sample events when you want to explore the dashboard without a live Claude Code session.
+
+## How it works
+
+1. **Load session history.** When the backend starts, it reads existing Claude Code JSONL session files from `~/.claude/projects` (or `CLAUDE_LOGS_DIR`).
+2. **Watch for new activity.** Chokidar follows session files as Claude Code appends new entries. The parser converts those entries into shared Brainstorm events such as file reads, edits, commands, and errors.
+3. **Store events locally.** The server writes sessions and events to the SQLite database. Event IDs make repeated reads safe when the server restarts. Tool failures are grouped so recurring errors can be reviewed together.
+4. **Serve and stream updates.** Express provides the HTTP API. Socket.IO sends the saved event history to each connected dashboard and broadcasts new events as they arrive.
+5. **Explore the work.** The React dashboard shows the live timeline, scans source imports for the codebase map, groups failures, and lets you ask about file changes. Claude and Nemotron calls are optional; without API keys the dashboard still records local activity and can use local heuristics for file summaries.
+
+The main data path is:
+
+```text
+Claude Code JSONL → parser → SQLite → Express / Socket.IO → React dashboard
+```
 
 ## Requirements
 
@@ -91,11 +114,3 @@ packages/
   shared/       Event types and Socket.IO event names
 ```
 
-## Event flow
-
-```text
-Claude Code JSONL logs ──► Backfill and live watcher ──► SQLite
-                                     │
-                                     ▼
-                               Socket.IO ──► React dashboard
-```
