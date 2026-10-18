@@ -1,0 +1,21 @@
+{
+  "name": "brainstorm",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Brainstorm - a local-first dashboard that watches AI coding agents and helps you understand what they did.",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n web,server -c blue,magenta \"npm:dev:web\" \"npm:dev:server\"",
+    "dev:web": "npm run dev --workspace apps/web",
+    "dev:server": "npm run dev --workspace apps/server",
+    "build": "npm run build --workspace apps/server && npm run build --workspace apps/web",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

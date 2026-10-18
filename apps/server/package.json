@@ -1,0 +1,29 @@
+{
+  "name": "@brainstorm/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Brainstorm backend - watches AI agent sessions and serves events to the dashboard",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@brainstorm/shared": "*",
+    "better-sqlite3": "^13.0.3",
+    "chokidar": "^5.0.0",
+    "cors": "^2.8.6",
+    "express": "^5.3.0",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/chokidar": "^1.7.5",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
