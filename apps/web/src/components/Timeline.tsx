@@ -6,18 +6,17 @@ interface EventMeta {
   tone: string;
 }
 
-/** Display metadata for each normalized event type. */
 const EVENT_META: Record<EventType, EventMeta> = {
-  session_started: { icon: "🟢", label: "Session", tone: "start" },
-  session_ended: { icon: "⏹", label: "Session", tone: "end" },
-  file_read: { icon: "📖", label: "Read", tone: "read" },
-  file_edit: { icon: "✏", label: "Edited", tone: "edit" },
-  tool_call: { icon: "🔧", label: "Tool", tone: "tool" },
-  tool_result: { icon: "📋", label: "Result", tone: "tool" },
-  command_run: { icon: "▶", label: "Command", tone: "command" },
-  tool_error: { icon: "⚠", label: "Error", tone: "error" },
-  test_result: { icon: "✅", label: "Test", tone: "test" },
-  agent_step: { icon: "🧩", label: "Agent", tone: "agent" },
+  session_started: { icon: "🟢", label: "Session",  tone: "start"   },
+  session_ended:   { icon: "⏹",  label: "Session",  tone: "end"     },
+  file_read:       { icon: "📖", label: "Read",     tone: "read"    },
+  file_edit:       { icon: "✏",  label: "Edited",   tone: "edit"    },
+  tool_call:       { icon: "🔧", label: "Tool",     tone: "tool"    },
+  tool_result:     { icon: "📋", label: "Result",   tone: "tool"    },
+  command_run:     { icon: "▶",  label: "Command",  tone: "command" },
+  tool_error:      { icon: "⚠",  label: "Error",    tone: "error"   },
+  test_result:     { icon: "✅", label: "Test",     tone: "test"    },
+  agent_step:      { icon: "🧩", label: "Agent",    tone: "agent"   },
 };
 
 function formatTime(iso: string): string {
@@ -28,24 +27,30 @@ function formatTime(iso: string): string {
   });
 }
 
-export function Timeline({ events }: { events: BrainstormEvent[] }) {
-  // Newest first so the live feed scrolls upward as new events arrive.
+interface Props {
+  events: BrainstormEvent[];
+  onFileClick?: (filePath: string) => void;
+}
+
+export function Timeline({ events, onFileClick }: Props) {
   const sorted = [...events].sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
 
   if (sorted.length === 0) {
-    return <div className="timeline-empty">Waiting for agent activity…</div>;
+    return (
+      <div className="timeline-empty">
+        <span style={{ fontSize: 28 }}>👀</span>
+        <p>Waiting for agent activity…</p>
+        <p className="dim">Start a Claude Code session to see live events.</p>
+      </div>
+    );
   }
 
   return (
     <ol className="timeline" aria-label="Live agent event timeline">
       {sorted.map((evt) => {
-        const meta = EVENT_META[evt.type] ?? {
-          icon: "•",
-          label: evt.type,
-          tone: "default",
-        };
+        const meta = EVENT_META[evt.type] ?? { icon: "•", label: evt.type, tone: "default" };
         return (
           <li key={evt.id} className={`timeline-item tone-${meta.tone}`}>
             <div className="timeline-rail" aria-hidden="true">
@@ -59,7 +64,13 @@ export function Timeline({ events }: { events: BrainstormEvent[] }) {
                 </time>
               </div>
               {evt.filePath && (
-                <code className="timeline-file">{evt.filePath}</code>
+                <button
+                  className="timeline-file-btn"
+                  onClick={() => onFileClick?.(evt.filePath!)}
+                  title="Open in Change Explorer"
+                >
+                  <code className="timeline-file">{evt.filePath}</code>
+                </button>
               )}
               <span className="timeline-tag">{meta.label}</span>
             </div>

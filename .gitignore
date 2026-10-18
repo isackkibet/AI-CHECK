@@ -1,11 +1,28 @@
+# Dependencies
 node_modules/
-**/node_modules/
-**/dist/
-coverage/
-*.log
+
+# Build output
+dist/
+build/
+
+# Local database (never commit session data)
+**/data/*.db
+**/data/*.db-shm
+**/data/*.db-wal
+
+# Environment files with secrets
 .env
-.env.*
-!.env.example
+apps/server/.env
+apps/web/.env
+
+# OS / editor
 .DS_Store
 .idea/
-.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# TypeScript build info
+*.tsbuildinfo
